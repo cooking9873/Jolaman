@@ -37,27 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JolamanStudyWarrior-debug-apk
-          path: "**/build/outputs/apk/debug/*.apk"            PROJECT_DIR="."
-          else
-            PROJECT_DIR="JolamanAPKNoStudio"
-          fi
-
-          cd "$PROJECT_DIR"
-          ../gradle-8.10.2/bin/gradle --no-daemon :app:assembleDebug || \
-          ./gradle-8.10.2/bin/gradle --no-daemon :app:assembleDebug
-
-      - name: Prepare APK
-        run: |
-          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
-            mkdir -p out
-            cp app/build/outputs/apk/debug/app-debug.apk out/app-debug.apk
-          else
-            mkdir -p out
-            cp JolamanAPKNoStudio/app/build/outputs/apk/debug/app-debug.apk out/app-debug.apk
-          fi
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: JolamanStudyWarrior-debug-apk
-          path: out/app-debug.apk
+          path: "**/build/outputs/apk/debug/*.apk"
