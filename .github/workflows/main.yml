@@ -11,17 +11,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Java 17
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK
+      - name: Install Android SDK
         run: |
+          yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
@@ -31,10 +32,29 @@ jobs:
           unzip -q gradle-8.10.2-bin.zip
 
       - name: Build APK
-        run: ./gradle-8.10.2/bin/gradle :app:assembleDebug
+        run: |
+          if [ -f settings.gradle ]; then
+            PROJECT_DIR="."
+          else
+            PROJECT_DIR="JolamanAPKNoStudio"
+          fi
+
+          cd "$PROJECT_DIR"
+          ../gradle-8.10.2/bin/gradle --no-daemon :app:assembleDebug || \
+          ./gradle-8.10.2/bin/gradle --no-daemon :app:assembleDebug
+
+      - name: Prepare APK
+        run: |
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            mkdir -p out
+            cp app/build/outputs/apk/debug/app-debug.apk out/app-debug.apk
+          else
+            mkdir -p out
+            cp JolamanAPKNoStudio/app/build/outputs/apk/debug/app-debug.apk out/app-debug.apk
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: JolamanStudyWarrior-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: out/app-debug.apk
